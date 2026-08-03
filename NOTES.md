@@ -249,3 +249,128 @@ A big part is:
 - Keeping changes organized
 
 These small practices will help me while building AlphaOS.
+
+## Financial Data Learning
+
+### Trading Days vs Missing Data
+
+Stock market data does not contain every calendar day.
+
+Example:
+
+- January 6th and 7th were weekends.
+- January 13th and 14th were weekends.
+- January 15th was a US market holiday.
+
+These missing dates are not errors. They represent days when the market was closed.
+
+A financial data system must understand the difference between:
+
+- Market closed → expected absence of data
+- Data fetch failure → actual missing data problem
+
+Handling this correctly is important when building financial applications.
+
+## Day 2 - Financial Calculations
+
+### Understanding Stock Returns
+
+A stock return tells us how much the price changed compared to the previous day.
+
+Formula:
+
+Daily Return = (Today's Close / Yesterday's Close) - 1
+
+Example:
+
+On 2024-01-02:
+Price = 100.00
+
+On 2024-01-03:
+Price = 101.00
+
+Daily Return:
+
+= (101 / 100) - 1
+
+= 1.01 - 1
+
+= 0.010000
+
+So the stock increased by 1%.
+
+---
+
+### Cumulative Return
+
+Cumulative return tells us the total growth of the stock from the first day to the last day.
+
+There are two ways to calculate it.
+
+### Method 1: Multiply all daily growth factors
+
+Each daily return is converted into a growth factor:
+
+1 + return
+
+Then multiply all days together and subtract 1.
+
+Example:
+
+(1+r1) × (1+r2) × ... × (1+r9) - 1
+
+Result:
+
+0.060800
+
+---
+
+### Method 2: Compare starting price and ending price
+
+Simple formula:
+
+= (Final Price / Initial Price) - 1
+
+= (106.08 / 100.00) - 1
+
+= 0.060800
+
+---
+
+### Why are both methods equal?
+
+Because daily returns are just showing the growth happening step by step.
+
+Example:
+
+If ₹100 becomes ₹101 and then ₹102.01:
+
+Day 1:
+100 × 1.01 = 101
+
+Day 2:
+101 × 1.01 = 102.01
+
+The intermediate values cancel out when we multiply all growth factors.
+
+So:
+
+Daily growth × Daily growth × ... = Final Price / Initial Price
+
+---
+
+### Final Values
+
+First daily return:
+
+`0.010000`
+
+Cumulative return using daily returns:
+
+`0.060800`
+
+Cumulative return using final and initial price:
+
+`0.060800`
+
+Both methods should always match.
