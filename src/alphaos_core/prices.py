@@ -34,4 +34,9 @@ def load_prices(csv_path: str | Path) -> pd.DataFrame:
         raise ValueError(f"No rows in {path}")
     df["date"] = pd.to_datetime(df["date"], utc=True)
     df = df.set_index("date").sort_index()
+    if df.index.has_duplicates:
+        raise ValueError(f"Duplicate dates in {path}")
+
+    if (df["close"] <= 0).any():
+        raise ValueError(f"Non-positive close price in {path}")
     return df
