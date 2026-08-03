@@ -201,7 +201,7 @@ test_*.py
 Test functions:
 
 ```python
-test_*()
+test_ * ()
 ```
 
 If naming is wrong, pytest may find zero tests.
