@@ -26,4 +26,12 @@ def load_prices(csv_path: str | Path) -> pd.DataFrame:
     path = Path(csv_path)
     if not path.exists():
         raise FileNotFoundError(f"No such file: {path}")
-    raise NotImplementedError
+    df = pd.read_csv(path, converters={"close": Decimal})
+    for column in ["date", "close"]:
+        if column not in df.columns:
+            raise ValueError(f"Missing required column: {column}")
+    if df.empty:
+        raise ValueError(f"No rows in {path}")
+    df["date"] = pd.to_datetime(df["date"], utc=True)
+    df = df.set_index("date").sort_index()
+    return df
