@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 import pandas as pd
@@ -81,3 +81,33 @@ def daily_returns(prices: pd.DataFrame) -> pd.Series:
     returns = closes / closes.shift(1) - 1
 
     return returns.rename("daily_return").dropna()
+
+
+def cumulative_return(returns: pd.Series) -> Decimal:
+    """Total compounded return over the whole series.
+
+    Formula:
+        (1 + r_1) * (1 + r_2) * ... * (1 + r_n) - 1
+
+    Returns:
+        Decimal quantised to 6 decimal places, rounded half up.
+        Decimal is used because this is a headline figure that gets
+        reported and compared, so it must round the same way every
+        time on every machine.
+
+    Raises:
+        ValueError:
+            If the series is empty or contains any NaN.
+    """
+
+    if returns.empty:
+        raise ValueError("Cannot compute cumulative return of an empty series")
+
+    if returns.isna().any():
+        raise ValueError("Returns series contains NaN")
+
+    total = float((1 + returns).prod() - 1)
+
+    # str() first: Decimal(float) carries the binary error straight in,
+    # exactly as Decimal(0.1) does.
+    return Decimal(str(total)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
