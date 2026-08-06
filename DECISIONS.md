@@ -75,3 +75,42 @@ Reasons:
 |---|---|
 | Money, prices, share quantities, cost basis | `Decimal` |
 | Daily returns, volatility, correlation, model features | `float` |
+
+## 2026-08-05 — Return type and rounding for cumulative_return
+
+**Decision:**
+Return a `Decimal` quantised to 6 decimal places using `ROUND_HALF_UP`.
+
+```python
+return Decimal(str(total)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
+```
+
+**Why a Decimal, when a return is a ratio:**
+
+This sits in tension with the rule above, and the tension is deliberate. A
+daily return is an intermediate value consumed by other calculations, so
+`float` is right. A cumulative return is a **headline figure** — it gets
+reported, stored and compared against a benchmark.
+
+Multiplying nine floats gives `0.06080000000000001` where the true answer is
+`0.0608`. A report should not show that. Rounding once, at a defined point,
+with a defined rule, makes the output reproducible across runs and machines.
+
+**Why ROUND_HALF_UP:**
+
+Python's default is `ROUND_HALF_EVEN` (banker's rounding), which rounds 0.5 to
+the nearest even digit. It is statistically better because it does not bias
+sums upward. But finance conventionally rounds half up, and matching
+convention matters when a figure has to agree with a broker or exchange
+statement.
+
+**Important detail — `str()` before `Decimal()`:**
+
+`Decimal(total)` would carry the float's binary error straight in, exactly as
+`Decimal(0.1)` produced 55 digits on Day 2. Converting via the string
+representation gives the intended value. Whenever a float must become a
+Decimal, it goes through `str()`.
+
+**Revisit:** if AlphaOS ever needs more than 6 decimal places of precision on
+a reported return, or if a downstream consumer needs the unrounded value, this
+should return both.
